@@ -1,6 +1,78 @@
 import streamlit as st
+import http.client
+import urllib.parse
+import json
 
-st.title("🎈 My new app")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
-)
+st.title("YouTube Transcript & Summary")
+
+# Add an input bar to take string input from the user
+baseURL = st.text_input("Enter the base URL:")
+
+# Split the URL after the '=' sign to get the video_Id
+video_id = ""
+
+if '=' in baseURL:
+    parts = baseURL.split('=')
+    # Store the second part in the 'VID' variable
+    video_id = parts[1] 
+    st.write(f"Extracted Video ID: {video_id}")
+else:
+    st.write(f"Invalid YouTube URL format. Please provide a URL containing video_id starting with'='.'")
+
+# required params
+api_key = "2bd75d2069msh7d63312ea77e344p1786cbjsn875221b51434"
+rapidapi_host = "youtube-video-summarizer-gpt-ai.p.rapidapi.com"
+platform = "youtube"
+
+def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
+    conn = http.client.HTTPSConnection("youtube-video-summarizer-gpt-ai.p.rapidapi.com") # API endpoint
+
+    headers = {
+        'x-rapidapi-key': api_key,
+        'x-rapidapi-host': rapidapi_host
+    }
+
+    # Construct the URL with dynamic parameters
+    params = {
+        'video_id': video_id,
+        'platform': platform
+    }
+    #params.update(platform)  # Adding platform selection
+    url = "/api/v1/get-transcript-v2?" + urllib.parse.urlencode(params)  # encoding parameters
+
+    conn.request("GET", url, headers=headers)
+    res = conn.getresponse()
+    data = res.read()
+    return data.decode("utf-8")
+
+#transcript_data = get_transcript_with_params(video_id, api_key, rapidapi_host, platform)
+#data = json.loads(transcript_data)
+
+# Call the function with additional parameters as needed
+# API returns the JSON data which is stored in the 'data' variable
+
+apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+#transcript_text = apiResponse["data"]["transcripts"]["en_auto"]["custom"][0]["text"]
+
+# Extract the transcript text from the JSON data
+def extract_transcript_text(apiResponse):
+    transcript_text = []
+    if isinstance(apiResponse, dict):
+        for key, value in apiResponse.items():
+            if key == "text":
+                transcript_text.append(value)
+            else:
+                transcript_text.extend(extract_transcript_text(value))
+    elif isinstance(apiResponse, list):
+        for item in apiResponse:
+            transcript_text.extend(extract_transcript_text(item))
+    return transcript_text
+
+all_texts = extract_transcript_text(apiResponse)
+
+# Print the result
+for text in all_texts:
+    st.write(text)
+
+# Display the transcript data
+#st.text_area("Transcript:", transcript_text, height=400)
