@@ -2,6 +2,7 @@ import streamlit as st
 import http.client
 import urllib.parse
 import json
+import os
 
 st.title("YouTube Transcript & Summary")
 
@@ -20,7 +21,7 @@ else:
     st.write(f"Invalid YouTube URL format. Please provide a URL containing video_id starting with'='.'")
 
 # required params
-api_key = "2bd75d2069msh7d63312ea77e344p1786cbjsn875221b51434"
+from config import api_key
 rapidapi_host = "youtube-video-summarizer-gpt-ai.p.rapidapi.com"
 platform = "youtube"
 
