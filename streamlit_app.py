@@ -20,7 +20,7 @@ if '=' in baseURL:
 else:
     st.write(f"Invalid YouTube URL format. Please provide a URL containing video_id starting with'='.'")
 
-# required params
+## required params
 from config import api_key
 rapidapi_host = "youtube-video-summarizer-gpt-ai.p.rapidapi.com"
 platform = "youtube"
@@ -55,6 +55,7 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
 apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
 #transcript_text = apiResponse["data"]["transcripts"]["en_auto"]["custom"][0]["text"]
 
+""""
 # Extract the transcript text from the JSON data
 def extract_transcript_text(apiResponse):
     transcript_text = []
@@ -68,6 +69,13 @@ def extract_transcript_text(apiResponse):
         for item in apiResponse:
             transcript_text.extend(extract_transcript_text(item))
     return transcript_text
+"""
+
+from utils import extract_transcript_text  # Import the function from utils.py
+# Add a button to trigger the transcript extraction
+if st.button("Get Transcript"):
+    apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+    all_texts = extract_transcript_text(apiResponse)
 
 all_texts = extract_transcript_text(apiResponse)
 
