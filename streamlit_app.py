@@ -52,16 +52,17 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
 # Call the function with additional parameters as needed
 # API returns the JSON data which is stored in the 'data' variable
 
-apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+#apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
 #transcript_text = apiResponse["data"]["transcripts"]["en_auto"]["custom"][0]["text"]
 
+apiResponse=[]
 
-from utils import extract_transcript_text  # Import the function from utils.py
 # Add a button to trigger the transcript extraction
 if st.button("Get Transcript"):
     apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
-    #all_texts = extract_transcript_text(apiResponse)
 
+# Extract the transcript text from the JSON data
+from utils import extract_transcript_text  # Import the function from utils.py
 all_texts = extract_transcript_text(apiResponse)
 
 # Print the result
