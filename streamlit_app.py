@@ -25,6 +25,7 @@ from config import api_key
 rapidapi_host = "youtube-video-summarizer-gpt-ai.p.rapidapi.com"
 platform = "youtube"
 
+"""
 def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
     conn = http.client.HTTPSConnection("youtube-video-summarizer-gpt-ai.p.rapidapi.com") # API endpoint
 
@@ -45,6 +46,7 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
     res = conn.getresponse()
     data = res.read()
     return data.decode("utf-8")
+"""
 
 #transcript_data = get_transcript_with_params(video_id, api_key, rapidapi_host, platform)
 #data = json.loads(transcript_data)
@@ -52,13 +54,10 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
 # Call the function with additional parameters as needed
 # API returns the JSON data which is stored in the 'data' variable
 
-#apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
-#transcript_text = apiResponse["data"]["transcripts"]["en_auto"]["custom"][0]["text"]
-
-apiResponse=[]
-
 # Add a button to trigger the transcript extraction
+apiResponse=[]
 if st.button("Get Transcript"):
+    from utils import get_transcript_with_params  # Import the function from utils.py
     apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
 
 # Extract the transcript text from the JSON data
