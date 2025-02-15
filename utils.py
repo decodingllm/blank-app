@@ -38,3 +38,10 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
     res = conn.getresponse()
     data = res.read()
     return data.decode("utf-8")
+
+
+def summarize_text(texts):
+    # Placeholder function for summarizing text
+    # Replace this with actual summarization logic
+    summary = " ".join(texts[:3])  # Example: taking the first 3 texts as summary
+    return summary
