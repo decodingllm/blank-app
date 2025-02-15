@@ -4,6 +4,8 @@ import urllib.parse
 import json
 import os
 
+from utils import extract_transcript_text, get_transcript_with_params, summarize_text  # Import the functions from utils.py
+
 st.title("YouTube Transcript & Summary")
 
 # Add an input bar to take string input from the user
@@ -33,12 +35,26 @@ platform = "youtube"
 
 # Add a button to trigger the transcript extraction
 apiResponse=[]
+if 'apiResponse' not in st.session_state:
+    st.session_state.apiResponse = []
+
+if 'transcript_text' not in st.session_state:
+    st.session_state.transcript_text = []
+
 if st.button("Get Transcript"):
-    from utils import get_transcript_with_params  # Import the function from utils.py
-    apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+    st.session_state.apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+    st.session_state.transcript_text = extract_transcript_text(st.session_state.apiResponse)
+
+    for text in st.session_state.transcript_text:
+        st.write(text)
+    #apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+
+
+if st.button("Summarize", disabled=not st.session_state.transcript_text):
+    summary = summarize_text(" ".join(st.session_state.transcript_text))
+    st.write(summary)
 
 # Extract the transcript text from the JSON data
-from utils import extract_transcript_text  # Import the function from utils.py
 all_texts = extract_transcript_text(apiResponse)
 
 # Print the result
