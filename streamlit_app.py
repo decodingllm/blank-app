@@ -62,8 +62,6 @@ if st.button("Get Transcript"):
     apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
     all_texts = extract_transcript_text(apiResponse)
 
-all_texts = extract_transcript_text(apiResponse)
-
 # Print the result
 for text in all_texts:
     st.write(text)
