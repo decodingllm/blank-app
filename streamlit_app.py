@@ -119,5 +119,5 @@ if st.button("Summarize", disabled=not st.session_state.transcript_text):
 
 
 # Run FastAPI app
-import subprocess
-subprocess.Popen(["uvicorn", "api:app", "--reload"])
+#import subprocess
+#subprocess.Popen(["uvicorn", "api:app", "--reload"])
