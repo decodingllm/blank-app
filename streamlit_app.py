@@ -4,6 +4,8 @@ import urllib.parse
 import json
 import os
 
+from utils import extract_transcript_text, get_transcript_with_params, summarize_text  # Import the functions from utils.py
+
 st.title("YouTube Transcript & Summary")
 
 # Add an input bar to take string input from the user
@@ -14,37 +16,15 @@ video_id = ""
 
 if '=' in baseURL:
     parts = baseURL.split('=')
-    # Store the second part in the 'VID' variable
     video_id = parts[1] 
     st.write(f"Extracted Video ID: {video_id}")
 else:
-    st.write(f"Invalid YouTube URL format. Please provide a URL containing video_id starting with'='.'")
+    st.write(f"Invalid YouTube URL format!!")
 
-# required params
+## required params
 from config import api_key
-rapidapi_host = "youtube-video-summarizer-gpt-ai.p.rapidapi.com"
+from config import rapidapi_host
 platform = "youtube"
-
-def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
-    conn = http.client.HTTPSConnection("youtube-video-summarizer-gpt-ai.p.rapidapi.com") # API endpoint
-
-    headers = {
-        'x-rapidapi-key': api_key,
-        'x-rapidapi-host': rapidapi_host
-    }
-
-    # Construct the URL with dynamic parameters
-    params = {
-        'video_id': video_id,
-        'platform': platform
-    }
-    #params.update(platform)  # Adding platform selection
-    url = "/api/v1/get-transcript-v2?" + urllib.parse.urlencode(params)  # encoding parameters
-
-    conn.request("GET", url, headers=headers)
-    res = conn.getresponse()
-    data = res.read()
-    return data.decode("utf-8")
 
 #transcript_data = get_transcript_with_params(video_id, api_key, rapidapi_host, platform)
 #data = json.loads(transcript_data)
@@ -52,28 +32,39 @@ def get_transcript_with_params(video_id, api_key, rapidapi_host, platform):
 # Call the function with additional parameters as needed
 # API returns the JSON data which is stored in the 'data' variable
 
-apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
-#transcript_text = apiResponse["data"]["transcripts"]["en_auto"]["custom"][0]["text"]
+# Add a button to trigger the transcript extraction
+apiResponse=[]
+text=""
+if 'apiResponse' not in st.session_state:
+    st.session_state.apiResponse = []
+
+if 'transcript_text' not in st.session_state:
+    st.session_state.transcript_text = []
+
+if st.button("Get Transcript"):
+    st.session_state.apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+    st.session_state.transcript_text = extract_transcript_text(st.session_state.apiResponse)
+
+    for text in st.session_state.transcript_text:
+        st.write(text)
+    #apiResponse = json.loads(get_transcript_with_params(video_id, api_key, rapidapi_host, platform))
+
+
+if st.button("Summarize", disabled=not st.session_state.transcript_text):
+    summary = summarize_text(text)
+    st.write(summary)
 
 # Extract the transcript text from the JSON data
-def extract_transcript_text(apiResponse):
-    transcript_text = []
-    if isinstance(apiResponse, dict):
-        for key, value in apiResponse.items():
-            if key == "text":
-                transcript_text.append(value)
-            else:
-                transcript_text.extend(extract_transcript_text(value))
-    elif isinstance(apiResponse, list):
-        for item in apiResponse:
-            transcript_text.extend(extract_transcript_text(item))
-    return transcript_text
-
-all_texts = extract_transcript_text(apiResponse)
+#all_texts = extract_transcript_text(apiResponse)
 
 # Print the result
-for text in all_texts:
-    st.write(text)
+#for text in all_texts:
+#    st.write(text)
 
 # Display the transcript data
 #st.text_area("Transcript:", transcript_text, height=400)
+
+
+# Run FastAPI app
+import subprocess
+subprocess.Popen(["uvicorn", "api:app", "--reload"])
